@@ -2,11 +2,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const parser = require('body-parser');
 const secret = require('./config/secret.js');
+const userRoutes = require('./routes/users.js');
+// const initializeRoutes = require('./routes/users.js');
 
 const app = express();
 
+
+
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
+app.use('/',require('./routes/users.js'));
 
 const db = secret.mongoURI;
 
@@ -19,8 +24,7 @@ mongoose
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.log(err));
 
-
-app.use('/', require('./routes/users.js'));
+// initializeRoutes(app);
 
 const PORT = process.env.PORT || 5000;
 
