@@ -100,12 +100,24 @@ const bcrypt = require('bcryptjs');
                 user.email = email;
                 user.name = name;
                 user.password = password;
-                user.save(function(err){
-                    if(err) console.log(err);
-                    else {
-                        res.redirect('/dashboard');
-                    }
-                })
+                bcrypt.genSalt(10, (err, salt) => {
+                    bcrypt.hash(user.password, salt, (err, hash) => {
+                      if (err) throw err;
+                      user.password = hash;
+                      user
+                        .save()
+                        .then(user => {
+                          res.send('created entry');
+                        })
+                        .catch(err => console.log(err));
+                    });
+                  });
+                // user.save(function(err){
+                //     if(err) console.log(err);
+                //     else {
+                //         res.redirect('/dashboard');
+                //     }
+                // })
             }
         })
     })
@@ -114,7 +126,7 @@ const bcrypt = require('bcryptjs');
     
     
     
-    //mentor signup 
+   // mentor signup 
     router.get('/mentor/register',function(req,res){
         res.send('register here, mentor');
     });
@@ -153,7 +165,7 @@ const bcrypt = require('bcryptjs');
         }
     })
     
-    //mentor login 
+   // mentor login 
     router.get('/mentor/login',verifyToken,function(req,res){
         jwt.verify(req.token,'secretkey',function(err,authData){
             if(err) res.send('login here');
