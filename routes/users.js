@@ -36,7 +36,13 @@ const bcrypt = require('bcryptjs');
                               newUser
                                 .save()
                                 .then(user => {
-                                  res.send('created entry');
+                                //   res.send('created entry');
+                                console.log("created new entry");
+                                jwt.sign({user}, 'secretkey',{ expiresIn: '180s' }, (err, token) => {
+                                    res.json({
+                                    token
+                                    });
+                                });
                                 })
                                 .catch(err => console.log(err));
                             });
@@ -89,7 +95,7 @@ const bcrypt = require('bcryptjs');
         })
     })
     
-    //put request for user
+    //put request for user to edit details
     router.put('/dashboard',function(req,res){
         console.log(req.body);
         var {name,email,password} = req.body;
@@ -139,7 +145,7 @@ const bcrypt = require('bcryptjs');
             Mentor.findOne({email:email},function(err,mentor){
                 if(err) console.log(err);
                 else{
-                    if(user){
+                    if(mentor){
                         res.send('email already exists');
                     } else {
                         const newMentor = new Mentor({
@@ -154,7 +160,12 @@ const bcrypt = require('bcryptjs');
                               newMentor
                                 .save()
                                 .then(user => {
-                                  res.send('created new mentor');
+                                //   res.send('created new mentor');
+                                  jwt.sign({user}, 'secretkey',{ expiresIn: '180s' }, (err, token) => {
+                                    res.json({
+                                    token
+                                    });
+                                });
                                 })
                                 .catch(err => console.log(err));
                             });
@@ -188,8 +199,57 @@ const bcrypt = require('bcryptjs');
                     }
                 })
             })
+
+    router.get('/mentor/dashboard',verifyToken,function(req,res){
+        jwt.verify(req.token,'secretkey',function(err,authData){
+            if(err) {
+                res.sendStatus(403);
+            } else {
+                res.json({
+                    message: 'welcome to your dashboard,mentor',
+                    authData
+                })
+            }
+        })
+    })        
+
+    router.put('/mentor/dashboard',function(req,res){
+        console.log(req.body);
+        var {name,email,password} = req.body;
+        Mentor.findOne({email:email},function(err,user){
+            if(err) res.send('user does not exist');
+            else {
+                console.log(user);
+                user.email = email;
+                user.name = name;
+                user.password = password;
+                bcrypt.genSalt(10, (err, salt) => {
+                    bcrypt.hash(user.password, salt, (err, hash) => {
+                        if (err) throw err;
+                        user.password = hash;
+                        user
+                        .save()
+                        .then(user => {
+                            res.send('created entry');
+                        })
+                        .catch(err => console.log(err));
+                    });
+                    });
+                // user.save(function(err){
+                //     if(err) console.log(err);
+                //     else {
+                //         res.redirect('/dashboard');
+                //     }
+                // })
+            }
+        })
+    })
+    
+                    
     
     
+
+
     function verifyToken(req, res, next) {
         // Get auth header value
         const bearerHeader = req.headers['authorization'];
