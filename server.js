@@ -12,6 +12,8 @@ const app = express();
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
 app.use('/',require('./routes/users.js'));
+app.use('/',require('./routes/mentors.js'));
+app.use('/',require('./routes/slots.js'));
 
 const db = secret.mongoURI;
 
