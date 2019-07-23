@@ -138,8 +138,8 @@ const bcrypt = require('bcryptjs');
     });
     
     router.post('/mentor/register',function(req,res){
-        const {name, email, password, password2} = req.body;
-        if(!name||!email||!password||!password2){
+        const {name, email, password, password2,slots} = req.body;
+        if(!name||!email||!password||!password2||!slots){
             res.send('fill all fields');
         } else {
             Mentor.findOne({email:email},function(err,mentor){
@@ -151,7 +151,8 @@ const bcrypt = require('bcryptjs');
                         const newMentor = new Mentor({
                             name,
                             email,
-                            password
+                            password,
+                            slots
                         });
                         bcrypt.genSalt(10, (err, salt) => {
                             bcrypt.hash(newMentor.password, salt, (err, hash) => {
@@ -235,19 +236,37 @@ const bcrypt = require('bcryptjs');
                         .catch(err => console.log(err));
                     });
                     });
-                // user.save(function(err){
-                //     if(err) console.log(err);
-                //     else {
-                //         res.redirect('/dashboard');
-                //     }
-                // })
             }
         })
     })
     
-                    
+    //routes for selecting slots   
+    router.get('/slots',verifyToken,function(req,res){
+        jwt.verify(req.token,'secretkey',function(err,authData){
+            if(err) {
+                res.sendStatus(403);
+            } else {
+                Mentor.find({},function(err,mentor){
+                    if(err) res.send('no slots');
+                    else {
+                        for(var i=0;i<mentor.length;i++){
+                            console.log(mentor[i].slots);
+                        }
+                        res.send('list of slots');
+                    }
+                }) 
+            }
+        })
+    })
     
-    
+    //route for selecting time slot
+    router.post('/slots',function(req,res){
+        var slot = req.body.slots;
+        Mentor.findOneAndUpdate({slots:slot},{$pull : {slots:slot}},function(err,result){
+            if(err) res.send(err);
+            else res.send('slot set successfully');
+        })
+    });
 
 
     function verifyToken(req, res, next) {
