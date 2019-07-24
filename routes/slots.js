@@ -13,10 +13,11 @@ router.get('/slots',verifyToken,function(req,res){
             Mentor.find({},function(err,mentor){
                 if(err) res.send('no slots');
                 else {
+                    var listofSlots = [];
                     for(var i=0;i<mentor.length;i++){
-                        console.log(mentor[i].slots);
+                        listofSlots.push(mentor[i].slots);
                     }
-                    res.send('list of slots');
+                    res.json(listofSlots);
                 }
             }) 
         }
