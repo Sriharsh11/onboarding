@@ -13,9 +13,9 @@ const bcrypt = require('bcryptjs');
     
     //register post route
     router.post('/register',function(req,res){
-        const {name, email, password, password2} = req.body;
+        const {name, email, password, password2,gender} = req.body;
         console.log(req.body);
-        if(!name||!email||!password||!password2){
+        if(!name||!email||!password||!password2||!gender){
             res.send('enter all fields');
         } else {
             User.findOne({email:email},function(err,user){
@@ -27,7 +27,8 @@ const bcrypt = require('bcryptjs');
                         const newUser = new User({
                             name,
                             email,
-                            password
+                            password,
+                            gender
                           });
                           bcrypt.genSalt(10, (err, salt) => {
                             bcrypt.hash(newUser.password, salt, (err, hash) => {
